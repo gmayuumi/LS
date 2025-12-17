@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Laranjinha Studio | Estética Automotiva Premium</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orange: {
+                            400: '#FF8C00',
+                            500: '#FF6F00',
+                            600: '#E65100',
+                        },
+                        dark: {
+                            900: '#0a0a0a',
+                            800: '#121212',
+                            700: '#1c1c1c',
+                            600: '#2d2d2d'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'cta-pattern': "url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1920&auto=format&fit=crop')",
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Melhoria de performance no scroll */
+        html {
+            overflow-x: hidden;
+        }
+
+        .parallax {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* Desativa parallax em mobile para evitar bugs visuais e melhorar performance */
+        @media (max-width: 768px) {
+            .parallax {
+                background-attachment: scroll;
+            }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Suporte Safari */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-container {
+            position: relative;
+            overflow: hidden;
+            /* Crítico para mobile: impede o scroll da página ao arrastar o slider */
+            touch-action: none; 
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        .comparison-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 50%;
+            background-size: cover;
+            background-position: center;
+            border-right: 2px solid #FF6F00;
+            transition: width 0.1s ease;
+            z-index: 10;
+            pointer-events: none; /* Garante que o toque passe para o container */
+        }
+
+        .comparison-label {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 20;
+        }
+        
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF6F00;
+            border-radius: 4px;
+        }
+
+        iframe {
+            filter: grayscale(100%) invert(92%) contrast(83%);
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .mobile-menu-transition {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+        }
+    </style>
+</head>
+<body class="bg-dark-900 text-gray-100 font-sans antialiased overflow-x-hidden w-full">
+
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-4 px-4 lg:px-12 bg-transparent">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="#" class="flex flex-col font-display font-bold leading-none group z-50 relative select-none">
+                <span class="text-xl md:text-2xl text-white tracking-wider group-hover:text-orange-500 transition-colors">LARANJINHA</span>
+                <span class="text-[0.6rem] md:text-xs text-orange-500 tracking-[0.35em] group-hover:text-white transition-colors">STUDIO</span>
+            </a>
+
+            <div class="hidden md:flex space-x-6 items-center">
+                <a href="#home" class="hover:text-orange-400 transition-colors text-xs uppercase tracking-widest">Início</a>
+                <a href="#servicos" class="hover:text-orange-400 transition-colors text-xs uppercase tracking-widest">Serviços</a>
+                <a href="#antes-depois" class="hover:text-orange-400 transition-colors text-xs uppercase tracking-widest">Antes & Depois</a>
+                <a href="#galeria" class="hover:text-orange-400 transition-colors text-xs uppercase tracking-widest">Galeria</a>
+                <a href="#faq" class="hover:text-orange-400 transition-colors text-xs uppercase tracking-widest">FAQ</a>
+                <a href="#localizacao" class="hover:text-orange-400 transition-colors text-xs uppercase tracking-widest">Localização</a>
+                <a href="https://wa.me/5511913059815" target="_blank" class="px-5 py-2 border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white transition-all duration-300 rounded-full font-bold text-xs">
+                    AGENDAR
+                </a>
+            </div>
+
+            <button id="mobile-menu-btn" class="md:hidden text-2xl text-white z-50 relative w-12 h-12 flex items-center justify-end focus:outline-none" aria-label="Menu">
+                <i class="fas fa-bars transition-all duration-300"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div id="mobile-menu-overlay" class="fixed inset-0 z-40 bg-dark-900/95 backdrop-blur-xl transform translate-x-full mobile-menu-transition flex flex-col justify-center items-center h-full w-full">
+        <div class="flex flex-col space-y-6 text-center p-4 w-full max-w-sm">
+            <a href="#home" class="mobile-link text-2xl font-display font-bold text-white hover:text-orange-500 transition-colors py-2" onclick="toggleMenu()">INÍCIO</a>
+            <a href="#servicos" class="mobile-link text-2xl font-display font-bold text-white hover:text-orange-500 transition-colors py-2" onclick="toggleMenu()">SERVIÇOS</a>
+            <a href="#antes-depois" class="mobile-link text-2xl font-display font-bold text-white hover:text-orange-500 transition-colors py-2" onclick="toggleMenu()">RESULTADOS</a>
+            <a href="#galeria" class="mobile-link text-2xl font-display font-bold text-white hover:text-orange-500 transition-colors py-2" onclick="toggleMenu()">GALERIA</a>
+            <a href="#faq" class="mobile-link text-2xl font-display font-bold text-white hover:text-orange-500 transition-colors py-2" onclick="toggleMenu()">FAQ</a>
+            <a href="#localizacao" class="mobile-link text-2xl font-display font-bold text-white hover:text-orange-500 transition-colors py-2" onclick="toggleMenu()">LOCALIZAÇÃO</a>
+            
+            <div class="pt-6 w-full">
+                <a href="https://wa.me/5511913059815" target="_blank" class="block w-full py-4 bg-orange-600 text-white font-bold rounded-full text-lg shadow-[0_0_20px_rgba(255,111,0,0.4)] hover:bg-orange-700 active:scale-95 transition-all">
+                    AGENDAR AGORA
+                </a>
+            </div>
+
+            <div class="flex justify-center space-x-8 pt-6">
+                <a href="#" class="text-gray-400 hover:text-white text-3xl p-2"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white text-3xl p-2"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white text-3xl p-2"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ajuste de altura para mobile (svh) -->
+    <section id="home" class="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
+        
+        <div class="absolute inset-0 grid grid-cols-1 md:grid-cols-3 w-full h-full">
+            <div class="relative h-full border-r border-white/10 hidden md:block">
+                <img src="ls1.png" onerror="this.src='https://images.unsplash.com/photo-1601362840469-51e4d8d58785?q=80&w=1000&auto=format&fit=crop'" class="w-full h-full object-cover object-center opacity-70 hover:opacity-100 transition-opacity duration-700" alt="Polimento Automotivo">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-dark-900/90"></div>
+            </div>
+            <!-- Imagem central visível no mobile -->
+            <div class="relative h-full border-r border-white/10">
+                <img src="ls2.png" onerror="this.src='https://images.unsplash.com/photo-1493238792000-8113da705763?q=80&w=1000&auto=format&fit=crop'" class="w-full h-full object-cover object-center opacity-60 md:opacity-70 hover:opacity-100 transition-opacity duration-700" alt="Estética Automotiva">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/70 to-dark-900/90"></div>
+            </div>
+            <div class="relative h-full hidden md:block">
+                <img src="ls3.png" onerror="this.src='https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1000&auto=format&fit=crop'" class="w-full h-full object-cover object-center opacity-70 hover:opacity-100 transition-opacity duration-700" alt="Detalhes Automotivos">
+                <div class="absolute inset-0 bg-gradient-to-b from-black/60 to-dark-900/90"></div>
+            </div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 w-full max-w-5xl mx-auto mt-16 md:mt-0">
+            <h2 class="text-orange-500 font-display text-[0.65rem] sm:text-xs md:text-xl tracking-[0.2em] md:tracking-[0.4em] mb-4 reveal uppercase bg-black/50 inline-block px-3 py-1 rounded backdrop-blur-sm">Estética Automotiva Premium</h2>
+            <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black font-display text-white mb-6 leading-tight reveal drop-shadow-2xl break-words" style="transition-delay: 100ms;">
+                LARANJINHA<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-600">STUDIO</span>
+            </h1>
+            <p class="text-gray-200 text-sm md:text-xl mb-10 max-w-2xl mx-auto font-light reveal drop-shadow-md px-4" style="transition-delay: 200ms;">
+                Elevamos o padrão do seu veículo. Polimento, vitrificação e cuidados detalhados no Jaguaré.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center reveal w-full px-6" style="transition-delay: 300ms;">
+                <a href="https://wa.me/5511913059815" target="_blank" class="w-full sm:w-auto group relative px-8 py-4 bg-orange-600 text-white font-bold rounded-full overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(255,111,0,0.6)] text-center active:scale-95">
+                    <span class="relative z-10 flex items-center justify-center gap-2">
+                        <i class="fab fa-whatsapp text-xl"></i> ORÇAMENTO RÁPIDO
+                    </span>
+                    <div class="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                </a>
+                <a href="#galeria" class="w-full sm:w-auto px-8 py-4 border border-white/30 hover:border-white text-white rounded-full font-bold transition-all hover:bg-white/10 backdrop-blur-sm text-center active:bg-white/20">
+                    VER RESULTADOS
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-6 md:bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce z-20">
+            <i class="fas fa-chevron-down text-orange-500 text-2xl"></i>
+        </div>
+    </section>
+
+    <section id="servicos" class="py-12 md:py-24 bg-dark-900 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-500/50 to-transparent"></div>
+        
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-10 md:mb-16 reveal">
+                <span class="text-orange-500 font-bold tracking-widest uppercase text-xs md:text-sm">O que fazemos</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold text-white mt-2">NOSSOS SERVIÇOS</h2>
+                <div class="w-20 h-1 bg-orange-500 mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <!-- Cards otimizados para toque -->
+                <div class="group glass p-6 md:p-8 rounded-2xl hover:bg-dark-800 transition-all duration-500 hover:-translate-y-2 border-b-2 border-transparent hover:border-orange-500 reveal active:bg-dark-800">
+                    <div class="w-14 h-14 bg-dark-800 rounded-lg flex items-center justify-center mb-6 text-2xl text-orange-500 group-hover:text-white group-hover:bg-orange-600 transition-all">
+                        <i class="fas fa-spray-can"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white font-display">Polimento Técnico</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Correção avançada de verniz. Removemos riscos e micro-riscos, restaurando a profundidade e o brilho original da pintura.</p>
+                </div>
+
+                <div class="group glass p-6 md:p-8 rounded-2xl hover:bg-dark-800 transition-all duration-500 hover:-translate-y-2 border-b-2 border-transparent hover:border-orange-500 reveal active:bg-dark-800" style="transition-delay: 100ms;">
+                    <div class="w-14 h-14 bg-dark-800 rounded-lg flex items-center justify-center mb-6 text-2xl text-orange-500 group-hover:text-white group-hover:bg-orange-600 transition-all">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white font-display">Vitrificação</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Proteção nano-cerâmica 9H. Cria uma camada de vidro sobre o verniz, protegendo contra raios UV e dejetos por até 3 anos.</p>
+                </div>
+
+                <div class="group glass p-6 md:p-8 rounded-2xl hover:bg-dark-800 transition-all duration-500 hover:-translate-y-2 border-b-2 border-transparent hover:border-orange-500 reveal active:bg-dark-800" style="transition-delay: 200ms;">
+                    <div class="w-14 h-14 bg-dark-800 rounded-lg flex items-center justify-center mb-6 text-2xl text-orange-500 group-hover:text-white group-hover:bg-orange-600 transition-all">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white font-display">Envelopamento</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Customização total (All Black, cores foscas) ou proteção transparente (PPF) contra batidas de pedra e riscos.</p>
+                </div>
+
+                <div class="group glass p-6 md:p-8 rounded-2xl hover:bg-dark-800 transition-all duration-500 hover:-translate-y-2 border-b-2 border-transparent hover:border-orange-500 reveal active:bg-dark-800">
+                    <div class="w-14 h-14 bg-dark-800 rounded-lg flex items-center justify-center mb-6 text-2xl text-orange-500 group-hover:text-white group-hover:bg-orange-600 transition-all">
+                        <i class="fas fa-pump-soap"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white font-display">Higienização Premium</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Limpeza detalhada de bancos, teto, carpete e cinto de segurança com extração de sujeira e eliminação de odores.</p>
+                </div>
+
+                <div class="group glass p-6 md:p-8 rounded-2xl hover:bg-dark-800 transition-all duration-500 hover:-translate-y-2 border-b-2 border-transparent hover:border-orange-500 reveal active:bg-dark-800" style="transition-delay: 100ms;">
+                    <div class="w-14 h-14 bg-dark-800 rounded-lg flex items-center justify-center mb-6 text-2xl text-orange-500 group-hover:text-white group-hover:bg-orange-600 transition-all">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white font-display">Insulfilme</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Películas de alta performance (Nano Cerâmica e Carbon) que rejeitam calor e aumentam a privacidade.</p>
+                </div>
+
+                <div class="group glass p-6 md:p-8 rounded-2xl hover:bg-dark-800 transition-all duration-500 hover:-translate-y-2 border-b-2 border-transparent hover:border-orange-500 reveal active:bg-dark-800" style="transition-delay: 200ms;">
+                    <div class="w-14 h-14 bg-dark-800 rounded-lg flex items-center justify-center mb-6 text-2xl text-orange-500 group-hover:text-white group-hover:bg-orange-600 transition-all">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-white font-display">Detalhamento</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Limpeza técnica de motor, revitalização de plásticos, polimento de faróis e muito mais.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="antes-depois" class="py-12 md:py-24 bg-dark-800">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-10 reveal">
+                <span class="text-orange-500 font-bold tracking-widest uppercase text-xs md:text-sm">Resultados Reais</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold text-white mt-2">ANTES & DEPOIS</h2>
+                <p class="text-gray-400 mt-4 max-w-2xl mx-auto text-sm md:text-base">Arraste a barra para ver a transformação.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                <div class="reveal">
+                    <h3 class="text-white font-bold mb-4 text-center">Correção de Pintura</h3>
+                    <div class="comparison-container h-[250px] sm:h-[300px] md:h-[400px] rounded-2xl shadow-2xl cursor-col-resize group" onmousemove="updateSlider(event, this)" ontouchmove="updateSlider(event, this)">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800&auto=format&fit=crop');"></div>
+                        <span class="comparison-label right-4 bg-orange-600 text-[0.65rem] md:text-sm">DEPOIS</span>
+                        <div class="comparison-overlay" style="background-image: url('https://images.unsplash.com/photo-1626848173449-f033100693a1?q=80&w=800&auto=format&fit=crop');"></div>
+                        <span class="comparison-label left-4 bg-gray-700 text-[0.65rem] md:text-sm">ANTES</span>
+                        <div class="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize shadow-[0_0_10px_rgba(0,0,0,0.5)] z-30 pointer-events-none handle-line" style="left: 50%; transform: translateX(-50%);">
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center text-orange-600 shadow-lg">
+                                <i class="fas fa-arrows-alt-h text-sm md:text-base"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal" style="transition-delay: 200ms;">
+                    <h3 class="text-white font-bold mb-4 text-center">Restauração de Faróis</h3>
+                    <div class="comparison-container h-[250px] sm:h-[300px] md:h-[400px] rounded-2xl shadow-2xl cursor-col-resize group" onmousemove="updateSlider(event, this)" ontouchmove="updateSlider(event, this)">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.pexels.com/photos/33322120/pexels-photo-33322120.jpeg');"></div>
+                        <span class="comparison-label right-4 bg-orange-600 text-[0.65rem] md:text-sm">DEPOIS</span>
+                        <div class="comparison-overlay" style="background-image: url('https://images.pexels.com/photos/33322120/pexels-photo-33322120.jpeg'); filter: grayscale(100%) contrast(80%) sepia(20%);"></div>
+                        <span class="comparison-label left-4 bg-gray-700 text-[0.65rem] md:text-sm">ANTES</span>
+                        <div class="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize shadow-[0_0_10px_rgba(0,0,0,0.5)] z-30 pointer-events-none handle-line" style="left: 50%; transform: translateX(-50%);">
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center text-orange-600 shadow-lg">
+                                <i class="fas fa-arrows-alt-h text-sm md:text-base"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="galeria" class="py-12 md:py-24 bg-dark-900">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-10 reveal">
+                <div class="w-full">
+                    <span class="text-orange-500 font-bold tracking-widest uppercase text-xs md:text-sm">Portfolio</span>
+                    <h2 class="text-3xl md:text-5xl font-display font-bold text-white mt-2">GALERIA</h2>
+                </div>
+                <a href="https://instagram.com" target="_blank" class="text-gray-400 hover:text-white mt-4 md:mt-0 flex items-center gap-2 transition-colors whitespace-nowrap text-sm bg-dark-800 md:bg-transparent p-3 md:p-0 rounded-lg w-full md:w-auto justify-center md:justify-start">
+                    Ver mais no Instagram <i class="fas fa-arrow-right text-orange-500"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 h-auto md:h-[500px]">
+                <div class="col-span-1 sm:col-span-2 row-span-2 relative group overflow-hidden rounded-2xl reveal min-h-[250px] md:min-h-[300px]">
+                    <img src="https://images.pexels.com/photos/34601860/pexels-photo-34601860.jpeg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Carro Esportivo Polido">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                        <h4 class="text-white font-bold text-xl">Polimento Completo</h4>
+                        <p class="text-orange-400 text-sm">Porsche 911</p>
+                    </div>
+                </div>
+                
+                <div class="relative group overflow-hidden rounded-2xl reveal min-h-[200px]">
+                    <img src="https://images.unsplash.com/photo-1507136566006-cfc505b114fc?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Interior">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i class="fas fa-search text-white text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="relative group overflow-hidden rounded-2xl reveal min-h-[200px]">
+                    <img src="https://images.unsplash.com/photo-1580274455191-1c62238fa333?q=80&w=400&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Roda">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <i class="fas fa-search text-white text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="col-span-1 sm:col-span-2 relative group overflow-hidden rounded-2xl reveal min-h-[200px]">
+                    <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=800&auto=format&fit=crop" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Mustang">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                        <h4 class="text-white font-bold text-xl">Vitrificação 9H</h4>
+                        <p class="text-orange-400 text-sm">Proteção Total</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-20 bg-dark-800 border-y border-gray-800">
+        <div class="container mx-auto px-4 md:px-6">
+            <h2 class="text-2xl md:text-3xl font-display font-bold text-white text-center mb-10 reveal">O QUE DIZEM NOSSOS CLIENTES</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <div class="bg-dark-900 p-6 md:p-8 rounded-2xl border border-gray-800 reveal relative shadow-lg">
+                    <i class="fas fa-quote-right absolute top-6 right-6 text-orange-500/20 text-4xl"></i>
+                    <div class="flex text-orange-500 mb-4">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-300 mb-6 italic text-sm md:text-base leading-relaxed">"Serviço impecável. Meu carro saiu parecendo que acabou de sair da concessionária. O atendimento do Laranjinha é diferenciado."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center font-bold text-white">R</div>
+                        <span class="text-white font-bold text-sm">Ricardo S.</span>
+                    </div>
+                </div>
+                <div class="bg-dark-900 p-6 md:p-8 rounded-2xl border border-gray-800 reveal relative shadow-lg" style="transition-delay: 100ms;">
+                    <i class="fas fa-quote-right absolute top-6 right-6 text-orange-500/20 text-4xl"></i>
+                    <div class="flex text-orange-500 mb-4">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-300 mb-6 italic text-sm md:text-base leading-relaxed">"Fiz a vitrificação e o resultado foi surpreendente. A equipe é muito técnica e explica tudo. Recomendo de olhos fechados."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center font-bold text-white">M</div>
+                        <span class="text-white font-bold text-sm">Marcelo T.</span>
+                    </div>
+                </div>
+                <div class="bg-dark-900 p-6 md:p-8 rounded-2xl border border-gray-800 reveal relative shadow-lg" style="transition-delay: 200ms;">
+                    <i class="fas fa-quote-right absolute top-6 right-6 text-orange-500/20 text-4xl"></i>
+                    <div class="flex text-orange-500 mb-4">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-300 mb-6 italic text-sm md:text-base leading-relaxed">"Ótima localização no Jaguaré e preço justo pela qualidade que entregam. A higienização interna salvou meus bancos."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center font-bold text-white">A</div>
+                        <span class="text-white font-bold text-sm">Ana P.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="py-12 md:py-24 bg-dark-900">
+        <div class="container mx-auto px-4 md:px-6 max-w-4xl">
+            <div class="text-center mb-10 reveal">
+                <span class="text-orange-500 font-bold tracking-widest uppercase text-xs md:text-sm">Dúvidas Comuns</span>
+                <h2 class="text-3xl md:text-5xl font-display font-bold text-white mt-2">PERGUNTAS FREQUENTES</h2>
+            </div>
+
+            <div class="space-y-4">
+                <div class="border border-gray-800 rounded-lg overflow-hidden reveal">
+                    <button class="w-full flex justify-between items-center p-4 md:p-6 bg-dark-800 hover:bg-dark-700 transition-colors text-left focus:outline-none" onclick="toggleFaq(this)">
+                        <span class="text-sm md:text-lg font-bold text-white pr-4">Quanto tempo demora um polimento técnico?</span>
+                        <i class="fas fa-plus text-orange-500 transition-transform duration-300 flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-content bg-dark-900">
+                        <p class="p-4 md:p-6 text-gray-400 text-sm md:text-base leading-relaxed">O tempo pode variar de acordo com o estado da pintura e o tamanho do veículo. Geralmente, um polimento técnico completo leva entre 1 a 2 dias úteis para garantir o melhor resultado.</p>
+                    </div>
+                </div>
+
+                <div class="border border-gray-800 rounded-lg overflow-hidden reveal" style="transition-delay: 100ms;">
+                    <button class="w-full flex justify-between items-center p-4 md:p-6 bg-dark-800 hover:bg-dark-700 transition-colors text-left focus:outline-none" onclick="toggleFaq(this)">
+                        <span class="text-sm md:text-lg font-bold text-white pr-4">O que é a vitrificação e quanto tempo dura?</span>
+                        <i class="fas fa-plus text-orange-500 transition-transform duration-300 flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-content bg-dark-900">
+                        <p class="p-4 md:p-6 text-gray-400 text-sm md:text-base leading-relaxed">A vitrificação é a aplicação de uma resina protetora de nano-cerâmica. Ela protege contra raios UV, fezes de pássaros e seivas de árvores. A durabilidade dos nossos produtos varia de 1 a 3 anos, dependendo dos cuidados na manutenção.</p>
+                    </div>
+                </div>
+
+                <div class="border border-gray-800 rounded-lg overflow-hidden reveal" style="transition-delay: 200ms;">
+                    <button class="w-full flex justify-between items-center p-4 md:p-6 bg-dark-800 hover:bg-dark-700 transition-colors text-left focus:outline-none" onclick="toggleFaq(this)">
+                        <span class="text-sm md:text-lg font-bold text-white pr-4">Quais formas de pagamento vocês aceitam?</span>
+                        <i class="fas fa-plus text-orange-500 transition-transform duration-300 flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-content bg-dark-900">
+                        <p class="p-4 md:p-6 text-gray-400 text-sm md:text-base leading-relaxed">Aceitamos cartões de crédito (com parcelamento), débito, PIX e dinheiro. Consulte condições especiais para pagamentos à vista no PIX.</p>
+                    </div>
+                </div>
+
+                <div class="border border-gray-800 rounded-lg overflow-hidden reveal" style="transition-delay: 300ms;">
+                    <button class="w-full flex justify-between items-center p-4 md:p-6 bg-dark-800 hover:bg-dark-700 transition-colors text-left focus:outline-none" onclick="toggleFaq(this)">
+                        <span class="text-sm md:text-lg font-bold text-white pr-4">Preciso agendar horário para avaliação?</span>
+                        <i class="fas fa-plus text-orange-500 transition-transform duration-300 flex-shrink-0"></i>
+                    </button>
+                    <div class="faq-content bg-dark-900">
+                        <p class="p-4 md:p-6 text-gray-400 text-sm md:text-base leading-relaxed">Para sua comodidade, recomendamos o agendamento. Porém, você pode passar em nossa loja para uma avaliação rápida gratuita. Chame no WhatsApp para confirmar a disponibilidade.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="localizacao" class="py-0 flex flex-col lg:flex-row h-auto lg:min-h-[500px]">
+        <div class="w-full lg:w-1/2 bg-dark-700 p-8 lg:p-20 flex flex-col justify-center border-t border-gray-800 lg:border-t-0 order-2 lg:order-1">
+            <div class="reveal">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-white mb-8">ONDE ESTAMOS</h2>
+                
+                <div class="space-y-8">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-dark-900 rounded-full flex items-center justify-center text-orange-500 flex-shrink-0">
+                            <i class="fas fa-map-marker-alt text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-white font-bold text-lg">Endereço</h4>
+                            <p class="text-gray-400 mb-3 text-sm md:text-base break-words" id="address-text">R. Marselha, 920 - Jaguaré, São Paulo - SP</p>
+                            
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="copyAddress()" class="relative group px-4 py-2 bg-dark-900 border border-gray-700 rounded text-sm text-gray-300 hover:text-white hover:border-orange-500 transition-all flex items-center gap-2 active:bg-dark-800">
+                                    <i class="far fa-copy"></i> Copiar
+                                    <span id="copy-tooltip" class="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-orange-600 text-white text-xs py-1 px-2 rounded shadow-lg whitespace-nowrap">Copiado!</span>
+                                </button>
+                                
+                                <a href="https://maps.google.com/?q=R.+Marselha,+920+-+Jaguaré,+São+Paulo+-+SP" target="_blank" class="px-4 py-2 bg-orange-600 rounded text-sm text-white font-bold hover:bg-orange-700 transition-all flex items-center gap-2 shadow-lg hover:shadow-orange-500/20 active:scale-95">
+                                    <i class="fas fa-location-arrow"></i> Abrir no GPS
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-dark-900 rounded-full flex items-center justify-center text-orange-500 flex-shrink-0">
+                            <i class="fas fa-clock text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Horário de Funcionamento</h4>
+                            <ul class="text-gray-400 space-y-1 mt-1 text-sm md:text-base">
+                                <li class="flex justify-between w-full gap-8"><span class="text-white">Seg - Sex:</span> 09:00 – 18:00</li>
+                                <li class="flex justify-between w-full gap-8"><span class="text-white">Sábado:</span> 08:00 – 13:00</li>
+                                <li class="flex justify-between w-full gap-8"><span class="text-red-400">Domingo:</span> Fechado</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 bg-dark-900 rounded-full flex items-center justify-center text-orange-500 flex-shrink-0">
+                            <i class="fab fa-whatsapp text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Contato</h4>
+                            <p class="text-gray-400 mb-2 text-sm md:text-base">Orçamentos e agendamentos.</p>
+                            <a href="https://wa.me/5511913059815" class="text-orange-500 font-bold hover:underline text-lg">
+                                (11) 91305-9815
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 h-[300px] lg:h-auto bg-gray-900 relative order-1 lg:order-2">
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3656.666986427382!2d-46.7570!3d-23.5450!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94cef8a8b8b8b8b8%3A0x0!2sR.%20Marselha%2C%20920%20-%20Jaguar%C3%A9%2C%20S%C3%A3o%20Paulo%20-%20SP%2C%2005332-000!5e0!3m2!1spt-BR!2sbr!4v1620000000000!5m2!1spt-BR!2sbr" 
+                width="100%" 
+                height="100%" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy" 
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <!-- Overlay para evitar scroll acidental no mapa em mobile -->
+            <div class="absolute inset-0 bg-orange-900/10 pointer-events-none mix-blend-overlay"></div>
+        </div>
+    </section>
+
+    <section class="relative py-20 md:py-24 parallax bg-cta-pattern flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/80"></div>
+        <div class="relative z-10 text-center px-4 reveal">
+            <h2 class="text-3xl md:text-5xl font-display font-bold text-white mb-6 leading-tight">SEU CARRO MERECE O MELHOR</h2>
+            <p class="text-gray-300 mb-8 max-w-2xl mx-auto text-sm md:text-base">Não deixe para depois. Agende sua avaliação gratuita e descubra o verdadeiro potencial do seu veículo.</p>
+            <a href="https://wa.me/5511913059815" target="_blank" class="inline-block px-8 py-4 md:px-10 md:py-5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full transition-all transform hover:scale-105 shadow-2xl shadow-orange-600/50 text-sm md:text-base active:scale-95">
+                QUERO AGENDAR AGORA
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-black py-12 md:py-16 border-t border-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12">
+                
+                <div>
+                    <a href="#" class="inline-flex flex-col font-display font-bold leading-none">
+                        <span class="text-2xl text-white tracking-wider">LARANJINHA</span>
+                        <span class="text-xs text-orange-500 tracking-[0.35em]">STUDIO</span>
+                    </a>
+                    <p class="text-gray-500 text-sm mt-4 leading-relaxed">
+                        Referência em estética automotiva no Jaguaré. Cuidamos do seu patrimônio com paixão e tecnologia de ponta.
+                    </p>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#" class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center text-gray-400 hover:bg-orange-600 hover:text-white transition-all">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-dark-800 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-all">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-bold text-lg mb-4 md:mb-6">Links Rápidos</h3>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#home" class="hover:text-orange-500 transition-colors py-1 block">Início</a></li>
+                        <li><a href="#servicos" class="hover:text-orange-500 transition-colors py-1 block">Serviços</a></li>
+                        <li><a href="#galeria" class="hover:text-orange-500 transition-colors py-1 block">Galeria</a></li>
+                        <li><a href="#faq" class="hover:text-orange-500 transition-colors py-1 block">Perguntas Frequentes</a></li>
+                        <li><a href="#localizacao" class="hover:text-orange-500 transition-colors py-1 block">Contato</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-bold text-lg mb-4 md:mb-6">Nossos Serviços</h3>
+                    <ul class="space-y-3 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-orange-500 transition-colors py-1 block">Polimento Técnico</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors py-1 block">Vitrificação 9H</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors py-1 block">Envelopamento</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors py-1 block">Higienização Interna</a></li>
+                        <li><a href="#" class="hover:text-orange-500 transition-colors py-1 block">Insulfilme Premium</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-bold text-lg mb-4 md:mb-6">Atendimento</h3>
+                    <ul class="space-y-4 text-sm text-gray-400">
+                        <li class="flex items-start gap-3">
+                            <i class="fas fa-map-marker-alt text-orange-500 mt-1"></i>
+                            <span>R. Marselha, 920 - Jaguaré<br>São Paulo - SP</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fas fa-phone text-orange-500"></i>
+                            <span>(11) 91305-9815</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <i class="fas fa-envelope text-orange-500"></i>
+                            <span>contato@laranjinhastudio.com.br</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-900 pt-8 text-center text-gray-600 text-xs md:text-sm flex flex-col md:flex-row justify-between items-center gap-4">
+                <p>&copy; <span id="year"></span> Laranjinha Studio. Todos os direitos reservados.</p>
+                <p class="flex items-center gap-1">Desenvolvido com <i class="fas fa-bolt text-orange-500"></i> e Tecnologia</p>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/5511913059815" target="_blank" class="fixed bottom-6 right-6 z-50 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-all hover:scale-110 flex items-center justify-center animate-bounce duration-1000 active:scale-90">
+        <i class="fab fa-whatsapp text-3xl"></i>
+    </a>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu-overlay');
+        const navbar = document.getElementById('navbar');
+        const icon = btn.querySelector('i');
+
+        function toggleMenu() {
+            const isOpen = !menu.classList.contains('translate-x-full');
+            
+            if (isOpen) {
+                menu.classList.add('translate-x-full');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+                document.body.style.overflow = ''; 
+            } else {
+                menu.classList.remove('translate-x-full');
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+                document.body.style.overflow = 'hidden'; 
+            }
+        }
+
+        btn.addEventListener('click', toggleMenu);
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-dark-900/95', 'backdrop-blur-md', 'shadow-lg', 'py-2');
+                navbar.classList.remove('py-4', 'bg-transparent');
+            } else {
+                navbar.classList.remove('bg-dark-900/95', 'backdrop-blur-md', 'shadow-lg', 'py-2');
+                navbar.classList.add('py-4', 'bg-transparent');
+            }
+        });
+
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100; // Reduzido para disparar mais cedo em mobile
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+
+        function updateSlider(event, element) {
+            // Correção CRÍTICA para mobile: impede o scroll da página ao mover o slider
+            if(event.type === 'touchmove') {
+                event.preventDefault();
+            }
+
+            const rect = element.getBoundingClientRect();
+            let x = 0;
+            
+            if(event.type === 'touchmove') {
+                x = event.touches[0].clientX - rect.left;
+            } else {
+                x = event.clientX - rect.left;
+            }
+
+            if (x < 0) x = 0;
+            if (x > rect.width) x = rect.width;
+
+            const percentage = (x / rect.width) * 100;
+            const overlay = element.querySelector('.comparison-overlay');
+            overlay.style.width = percentage + '%';
+            const handle = element.querySelector('.cursor-ew-resize');
+            handle.style.left = percentage + '%';
+        }
+
+        function toggleFaq(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.classList.remove('rotate-45');
+                icon.classList.replace('fa-minus', 'fa-plus');
+            } else {
+                document.querySelectorAll('.faq-content').forEach(el => el.style.maxHeight = null);
+                document.querySelectorAll('#faq i.fa-minus').forEach(el => {
+                    el.classList.remove('rotate-45');
+                    el.classList.replace('fa-minus', 'fa-plus');
+                });
+
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.classList.add('rotate-45');
+                icon.classList.replace('fa-plus', 'fa-minus');
+            }
+        }
+
+        function copyAddress() {
+            const address = "R. Marselha, 920 - Jaguaré, São Paulo - SP";
+            navigator.clipboard.writeText(address).then(() => {
+                const tooltip = document.getElementById('copy-tooltip');
+                tooltip.classList.add('show');
+                setTimeout(() => {
+                    tooltip.classList.remove('show');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
